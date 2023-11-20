@@ -16,6 +16,7 @@ exports.getArticles = (req, res, next) => {
 exports.getArticleComments = (req, res, next) => {
     const {article_id} = req.params
     selectArticleComments(article_id).then((comments)=>{
+        console.log(comments)
         res.status(200).send({comments})
     }).catch(next)
 }

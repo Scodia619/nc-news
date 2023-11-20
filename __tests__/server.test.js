@@ -5,6 +5,7 @@ const seed = require("../db/seeds/seed");
 const { userData, topicData, commentData, articleData } = require("../db/data/test-data/index.js");
 const endpoints = require('../endpoints.json');
 const { expect } = require('@jest/globals');
+require('jest-sorted');
 
 beforeEach(() => seed({ topicData, userData, articleData, commentData }));
 afterAll(() => db.end());
@@ -81,6 +82,7 @@ describe("GET: /api/articles/:article_id/comments", ()=>{
         .expect(200)
         .then(({body: {comments}}) => {
             expect(comments).toHaveLength(11)
+            expect(comments).toBeSorted("created_at", {descending: true})
             comments.forEach(comment => {
                 expect(comment).toMatchObject({
                     comment_id : expect.any(Number),
@@ -91,6 +93,14 @@ describe("GET: /api/articles/:article_id/comments", ()=>{
                     article_id: expect.any(Number)
                 })
             })
+        })
+    })
+    test("200 - empty array if given an article with no comments", ()=> {
+        return request(app)
+        .get("/api/articles/13/comments")
+        .expect(200)
+        .then(({body: {comments}})=> {
+            expect(comments).toEqual([])
         })
     })
     test("404 - Article not found with valid data id",()=>{
