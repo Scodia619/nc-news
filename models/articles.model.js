@@ -8,7 +8,6 @@ exports.getArticleById = (id) => {
                 msg: "Article not found"
             })
         }
-        console.log("After if model")
         return rows[0]
     })
 }
