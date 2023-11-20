@@ -30,9 +30,9 @@ describe("GET /api", ()=>{
         return request(app)
         .get("/api")
         .expect(200)
-        .then(({body: {responses}})=>{
-            expect(typeof responses).toEqual('object')
-            expect(responses).toEqual(endpoints)
+        .then(({body: {endpoints}})=>{
+            expect(typeof endpoints).toEqual('object')
+            expect(endpoints).toEqual(endpoints)
         })
     })
 })
