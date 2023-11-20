@@ -3,7 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection.js");
 const seed = require("../db/seeds/seed");
 const { userData, topicData, commentData, articleData } = require("../db/data/test-data/index.js");
-const endpoints = require('../endpoints.json');
+const routes = require('../endpoints.json');
 const { expect } = require('@jest/globals');
 require('jest-sorted')
 
@@ -34,7 +34,7 @@ describe("GET /api", ()=>{
         .expect(200)
         .then(({body: {endpoints}})=>{
             expect(typeof endpoints).toEqual('object')
-            expect(endpoints).toEqual(endpoints)
+            expect(endpoints).toEqual(routes)
         })
     })
 })
@@ -82,6 +82,7 @@ describe("GET /api/articles", ()=>{
         .expect(200)
         .then(({body: {articles}})=>{
             expect(articles).toBeSortedBy("created_at", {descending: true})
+            expect(articles).toHaveLength(13)
             articles.forEach(article => {
                 expect(article).toMatchObject({
                     article_id: expect.any(Number),
