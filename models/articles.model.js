@@ -13,6 +13,7 @@ exports.selectArticleById = (id) => {
 }
 
 exports.selectArticles = () => {
+    console.log("Models")
     return db
       .query(
         `SELECT articles.author,articles.title,articles.article_id,articles.topic,
