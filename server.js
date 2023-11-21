@@ -2,8 +2,7 @@ const express = require("express");
 
 const { getTopics } = require("./cotrollers/topics.controller");
 const { getEndpoints } = require("./cotrollers/baseCall.controller");
-const { getArticleById, getArticleComments } = require("./cotrollers/articles.controller");
-const {getArticleById, getArticles} = require('./cotrollers/articles.controller')
+const { getArticleById, getArticleComments, getArticles } = require("./cotrollers/articles.controller");
 
 const { psqlErrors, customErrors } = require("./errors");
 
