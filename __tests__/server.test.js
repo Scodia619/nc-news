@@ -3,9 +3,9 @@ const request = require("supertest");
 const db = require("../db/connection.js");
 const seed = require("../db/seeds/seed");
 const { userData, topicData, commentData, articleData } = require("../db/data/test-data/index.js");
-const endpoints = require('../endpoints.json');
+const routes = require('../endpoints.json');
 const { expect } = require('@jest/globals');
-require('jest-sorted');
+require('jest-sorted')
 
 beforeEach(() => seed({ topicData, userData, articleData, commentData }));
 afterAll(() => db.end());
@@ -34,7 +34,67 @@ describe("GET /api", ()=>{
         .expect(200)
         .then(({body: {endpoints}})=>{
             expect(typeof endpoints).toEqual('object')
-            expect(endpoints).toEqual(endpoints)
+            expect(endpoints).toEqual(routes)
+        })
+    })
+})
+
+describe("GET /api/articles/:article_id", ()=>{
+    test("200: Received a Response", ()=>{
+        return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({body: {article}})=>{
+            expect(article).toMatchObject({
+                article_id: 1,
+                author: "butter_bridge",
+                title: "Living in the shadow of a great man",
+                body: "I find this existence challenging",
+                topic: "mitch",
+                created_at: "2020-07-09T20:11:00.000Z",
+                votes: 100,
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            })
+        })
+    })
+    test("404: Resource not found based on a valid integer but no record", ()=>{
+        return request(app)
+        .get('/api/articles/999')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe("Article not found")
+        })
+    })
+    test("400: Invalid data type", ()=>{
+        return request(app)
+        .get("/api/articles/banana")
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe("Bad request")
+        })
+    })
+})
+
+describe("GET /api/articles", ()=>{
+    test("200 - Gets all articles with comment count", ()=>{
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({body: {articles}})=>{
+            expect(articles).toBeSortedBy("created_at", {descending: true})
+            expect(articles).toHaveLength(13)
+            articles.forEach(article => {
+                expect(article).toMatchObject({
+                    article_id: expect.any(Number),
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number)
+                })
+            })
         })
     })
 })
