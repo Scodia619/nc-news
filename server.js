@@ -1,8 +1,13 @@
 const express = require("express");
+
 const { getTopics } = require("./cotrollers/topics.controller");
 const { getEndpoints } = require("./cotrollers/baseCall.controller");
 const { getArticleById, getArticles } = require("./cotrollers/articles.controllers");
 const { psqlErrors, customErrors } = require("./errors");
+const { getArticleById } = require("./cotrollers/articles.controller");
+
+const {customErrors, psqlErrors} = require('./errors.js')
+
 const app = express();
 
 app.get("/api/topics", getTopics)
