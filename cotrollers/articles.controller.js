@@ -9,9 +9,10 @@ const {
 } = require("../models/articles.model");
 
 exports.getArticles = (req, res, next) => {
-  selectArticles().then((articles) => {
+  const topic = req.query.topic || undefined
+  selectArticles(topic).then((articles) => {
     res.status(200).send({ articles });
-  });
+  }).catch(next);
 };
 
 exports.getArticleComments = (req, res, next) => {
