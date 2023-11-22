@@ -105,3 +105,22 @@ exports.updateArticleById = (id, increment) => {
       return rows[0];
     });
 };
+
+exports.insertCommentByArticle = (id, username, body) => {
+  if (!username || !body) {
+    ("Reject, ", id, username, body)
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request",
+    });
+  }
+  return db
+    .query(
+      "INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *",
+      [id, username, body]
+    )
+    .then(response => {
+      console.log(response)
+      return response.rows[0]; 
+    })
+};

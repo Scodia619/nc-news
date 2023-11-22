@@ -216,42 +216,93 @@ describe("PATCH: /api/article/:article_id", () => {
       return request(app)
         .patch("/api/articles/1")
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
-    });
-  
+        .then(({body})=>{
+            expect(body.msg).toBe("Bad request")
+        })
+    })
     test("400 - Incorrect Data for id", () => {
-      const incVotes = { inc_votes: 1 };
-      return request(app)
-        .patch("/api/articles/Banana")
-        .send(incVotes)
+        const incVotes = { inc_votes: 1 };
+        return request(app)
+          .patch("/api/articles/Banana")
+          .send(incVotes)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+    
+      test("400 - Incorrect Data", () => {
+        const incVotes = { inc_votes: "one" };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(incVotes)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
+    
+      test("404 - No article_id", () => {
+        const incVotes = { inc_votes: 1 };
+        return request(app)
+          .patch("/api/articles/999")
+          .send(incVotes)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Article not found");
+          });
+      });
+})
+
+describe("POST: /api/articles/:article_id/comments", ()=> {
+    test("201 - creates the comment", ()=>{
+        const comments = {username: 'butter_bridge', body: 'This article is awesome'}
+        return request(app)
+        .post("/api/articles/1/comments")
+        .send(comments)
+        .expect(201)
+        .then(({body: {comment}}) => {
+            expect(comment).toMatchObject(
+                {
+                    body: "This article is awesome",
+                    votes: 0,
+                    author: "butter_bridge",
+                    article_id: 1,
+                    created_at: expect.any(String),
+                    comment_id: 19
+                  },
+            )
+        })
+    })
+    test("400 - missing data", () => {
+        const comments = {username: 'butter_bridge'}
+        return request(app)
+        .post("/api/articles/1/comments")
+        .send(comments)
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
-    });
-  
-    test("400 - Incorrect Data", () => {
-      const incVotes = { inc_votes: "one" };
-      return request(app)
-        .patch("/api/articles/1")
-        .send(incVotes)
+        .then(({body}) => {
+            expect(body.msg).toBe("Bad request")
+        })
+    })
+    test("400 - incorrect data type article_id", () => {
+        const comments = {username: 'butter_bridge',body: "This article is awesome"}
+        return request(app)
+        .post("/api/articles/banana/comments")
+        .send(comments)
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
-    });
-  
-    test("404 - No article_id", () => {
-      const incVotes = { inc_votes: 1 };
-      return request(app)
-        .patch("/api/articles/999")
-        .send(incVotes)
+        .then(({body}) => {
+            expect(body.msg).toBe("Bad request")
+        })
+    })
+    test("404 - no article given with id", () => {
+        const comments = {username: 'butter_bridge',body: "This article is awesome"}
+        return request(app)
+        .post("/api/articles/999/comments")
+        .send(comments)
         .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Article not found");
-        });
-    });
-  });
+        .then(({body}) => {
+            expect(body.msg).toBe("Article not found")
+        })
+    })
+})
   
