@@ -52,13 +52,13 @@ exports.selectArticles = () => {
       });
   };
 
-exports.deleteCommentById = (id) => {
-  return db.query(`DELETE FROM comments WHERE comment_id = $1`, [id]).then(({rowCount}) => {
-    if(rowCount !== 1){
-      return Promise.reject({
-        status: 404,
-        msg: "Comment not found"
-      })
+  exports.deleteCommentById = (id) => {
+    return db.query(`DELETE FROM comments WHERE comment_id = $1`, [id]).then(({rowCount}) => {
+      if(rowCount !== 1){
+        return Promise.reject({
+            status: 404,
+            msg: "Comment not found"
+        })
     }
-  })
-}
+    })
+  }
