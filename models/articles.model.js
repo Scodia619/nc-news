@@ -37,7 +37,6 @@ exports.selectArticleById = (id) => {
 }
 
 exports.selectArticles = () => {
-    console.log("Models")
     return db
       .query(
         `SELECT articles.author,articles.title,articles.article_id,articles.topic,
@@ -52,3 +51,14 @@ exports.selectArticles = () => {
         return rows;
       });
   };
+
+exports.deleteCommentById = (id) => {
+  return db.query(`DELETE FROM comments WHERE comment_id = $1`, [id]).then(({rowCount}) => {
+    if(rowCount !== 1){
+      return Promise.reject({
+        status: 404,
+        msg: "Comment not found"
+      })
+    }
+  })
+}
