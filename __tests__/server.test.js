@@ -112,6 +112,16 @@ describe("PATCH: /api/articles/:article_id", ()=>{
             expect(body.msg).toBe("Bad request")
         })
     })
+    test("400 - Bad id datatype", ()=>{
+        const incVotes = {inc_votes: 'one'}
+        return request(app)
+        .patch("/api/articles/banana")
+        .send(incVotes)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe("Bad request")
+        })
+    })
     test("404: No article Found", ()=>{
         const incVotes = {inc_votes: 1}
         return request(app)
