@@ -36,6 +36,17 @@ exports.selectArticleById = (id) => {
     })
 }
 
+exports.updateArticleById = (id, increment) => {
+    return db.query('UPDATE articles SET votes = votes + $2 WHERE article_id = $1 RETURNING *', [id, increment]).then(({rows})=>{
+        if(!rows.length){
+            return Promise.reject({
+                status: 404,
+                msg: "Article not found"
+            })
+        }
+        return rows[0]
+    })
+} 
 exports.selectArticles = () => {
     return db
       .query(

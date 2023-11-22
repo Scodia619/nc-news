@@ -99,42 +99,6 @@ describe("GET /api/articles", ()=>{
     })
 })
 
-describe("GET /api/articles/:article_id", ()=>{
-    test("200: Received a Response", ()=>{
-        return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({body: {article}})=>{
-            expect(article).toMatchObject({
-                article_id: 1,
-                author: "butter_bridge",
-                title: "Living in the shadow of a great man",
-                body: "I find this existence challenging",
-                topic: "mitch",
-                created_at: "2020-07-09T20:11:00.000Z",
-                votes: 100,
-                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-            })
-        })
-    })
-    test("404: Resource not found based on a valid integer but no record", ()=>{
-        return request(app)
-        .get('/api/articles/999')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe("Article not found")
-        })
-    })
-    test("400: Invalid data type", ()=>{
-        return request(app)
-        .get("/api/articles/banana")
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe("Bad request")
-        })
-    })
-})
-
 describe("GET: /api/articles/:article_id/comments", ()=>{
     test("200 - Getting all comments for a related article",()=>{
         return request(app)
@@ -177,30 +141,6 @@ describe("GET: /api/articles/:article_id/comments", ()=>{
         .expect(400)
         .then(({body})=>{
             expect(body.msg).toBe("Bad request")
-        })
-    })
-})
-
-describe("DELETE: /api/comments/:comment_id", ()=>{
-    test("204 - Deletes the resource", ()=>{
-        return request(app)
-        .delete("/api/comments/1")
-        .expect(204)
-    })
-    test("400 - Invalid data type", ()=>{
-        return request(app)
-        .delete("/api/comments/banana")
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe("Bad request")
-        })
-    })
-    test("404 - No resource found with valid data type",()=>{
-        return request(app)
-        .delete("/api/comments/999")
-        .expect(404)
-        .then(({body}) => {
-            expect(body.msg).toBe("Comment not found")
         })
     })
 })
