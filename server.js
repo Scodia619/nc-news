@@ -16,8 +16,6 @@ app.get("/api/articles/:article_id", getArticleById)
 app.get("/api/articles/:article_id/comments", getArticleComments)
 app.get("/api/articles", getArticles)
 
-app.delete("/api/comments/:comment_id", removeCommentById)
-
 app.patch("/api/articles/:article_id", patchArticleById)
 
 app.use(psqlErrors)

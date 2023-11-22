@@ -144,27 +144,3 @@ describe("GET: /api/articles/:article_id/comments", ()=>{
         })
     })
 })
-
-describe("DELETE: /api/comments/:comment_id", ()=>{
-    test("204 - Deletes the resource", ()=>{
-        return request(app)
-        .delete("/api/comments/1")
-        .expect(204)
-    })
-    test("400 - Invalid data type", ()=>{
-        return request(app)
-        .delete("/api/comments/banana")
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe("Bad request")
-        })
-    })
-    test("404 - No resource found with valid data type",()=>{
-        return request(app)
-        .delete("/api/comments/999")
-        .expect(404)
-        .then(({body}) => {
-            expect(body.msg).toBe("Comment not found")
-        })
-    })
-})
