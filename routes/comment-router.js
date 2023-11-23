@@ -1,5 +1,4 @@
-const { removeCommentById } = require("../cotrollers/articles.controller");
-const { patchCommentById } = require("../cotrollers/comments.controller");
+const { patchCommentById, removeCommentById } = require("../cotrollers/comments.controller");
 
 const commentRouter = require("express").Router();
 

@@ -21,7 +21,7 @@ describe("GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then(({ body: { topics } }) => {
-        expect(topics).toHaveLength(3);
+        expect(topics).toHaveLength(4);
         topics.forEach((topic) => {
           expect(topic).toMatchObject({
             slug: expect.any(String),
@@ -483,7 +483,7 @@ describe("PATCH /api/comments/:comment_id", () => {
       .patch("/api/comments/1")
       .send(incVotes)
       .expect(200)
-      .then(({ body: {comment} }) => {
+      .then(({ body: { comment } }) => {
         expect(comment).toMatchObject({
           comment_id: 1,
           body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
@@ -534,4 +534,69 @@ describe("PATCH /api/comments/:comment_id", () => {
         expect(body.msg).toBe("Comment not found");
       });
   });
+});
+
+describe("POST /api/articles", () => {
+  test("201 inserts article and responds with new article", () => {
+    const newArticle = {
+      author: 'butter_bridge',
+      title: 'Football Mania has hit Anfield',
+      body: 'Fans flocked to the stadium today to support Liverpool vs Everton',
+      topic: 'football',
+      article_img_url:
+        'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          author: "butter_bridge",
+          title: "Football Mania has hit Anfield",
+          body: "Fans flocked to the stadium today to support Liverpool vs Everton",
+          topic: "football",
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          article_id: 14,
+        });
+      });
+  });
+  test("201 - Defaults the image and create new article", ()=>{
+    const newArticle = {
+      author: 'butter_bridge',
+      title: 'Football Mania has hit Anfield',
+      body: 'Fans flocked to the stadium today to support Liverpool vs Everton',
+      topic: 'football',
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({body: {article}})=>{
+        expect(article).toMatchObject({
+          author: "butter_bridge",
+          title: "Football Mania has hit Anfield",
+          body: "Fans flocked to the stadium today to support Liverpool vs Everton",
+          topic: "football",
+          article_img_url:
+            "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+          article_id: 14,
+        })
+      })
+  })
+  test("400 - Missing Data", ()=>{
+    const newArticle = {
+      title: 'Football Mania has hit Anfield',
+      body: 'Fans flocked to the stadium today to support Liverpool vs Everton',
+      topic: 'football',
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({body})=>{
+        expect(body.msg).toBe("Bad request")
+      })
+  })
 });

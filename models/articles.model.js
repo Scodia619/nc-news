@@ -101,19 +101,6 @@ exports.selectArticles = (topic, sort, order) => {
     });
 };
 
-exports.deleteCommentById = (id) => {
-  return db
-    .query(`DELETE FROM comments WHERE comment_id = $1`, [id])
-    .then(({ rowCount }) => {
-      if (rowCount !== 1) {
-        return Promise.reject({
-          status: 404,
-          msg: "Comment not found",
-        });
-      }
-    });
-};
-
 exports.selectUsers = () => {
   return db.query(`SELECT * FROM users`).then(({ rows }) => {
     return rows;
@@ -136,6 +123,25 @@ exports.updateArticleById = (id, increment) => {
       return rows[0];
     });
 };
+
+exports.insertNewArticle = (author, title, body, topic, article_img_url) => {
+  if(!author || !title || !body || !topic){
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request"
+    })
+  }
+  console.log("Hello")
+  let queryString;
+  if(!article_img_url){
+    queryString = 'INSERT INTO articles (author, title, body, topic) VALUES ($1, $2, $3, $4) RETURNING *'
+  }else{
+    queryString = 'INSERT INTO articles (author, title, body, topic, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING *'
+  }
+  return db.query(queryString, article_img_url ? [author, title, body, topic, article_img_url]: [author, title, body, topic]).then(({rows}) =>{
+    return rows[0]
+  })
+}
 
 exports.insertCommentByArticle = (id, username, body) => {
   if (!username || !body) {

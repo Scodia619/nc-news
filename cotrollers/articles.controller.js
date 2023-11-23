@@ -2,10 +2,10 @@ const {
   selectArticleById,
   selectArticleComments,
   selectArticles,
-  deleteCommentById,
   updateArticleById,
   selectUsers,
-  insertCommentByArticle
+  insertCommentByArticle,
+  insertNewArticle
 } = require("../models/articles.model");
 const { getTopics } = require("../models/topics.model");
 
@@ -56,13 +56,6 @@ exports.getArticleById = (req, res, next) => {
     .catch(next);
 };
 
-exports.removeCommentById = (req, res, next) => {
-    const {comment_id} = req.params
-    deleteCommentById(comment_id).then(()=>{
-        res.send(204)
-    }).catch(next)
-}
-
 exports.getUsers = (req, res, next) => {
     selectUsers().then((users) => {
         res.status(200).send({users})
@@ -91,5 +84,12 @@ exports.postCommentByArticle = (req, res, next) => {
     return insertCommentByArticle(article_id, username, body)
   }).then((comment) => {
     res.status(201).send({comment})
+  }).catch(next)
+}
+
+exports.postNewArticle = (req, res, next) => {
+  const {author, title, body, topic, article_img_url} = req.body
+  insertNewArticle(author, title, body, topic, article_img_url).then((article)=>{
+    res.status(201).send({article})
   }).catch(next)
 }
