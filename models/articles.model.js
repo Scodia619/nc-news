@@ -26,7 +26,16 @@ exports.selectArticleComments = (id) => {
 };
 exports.selectArticleById = (id) => {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [id])
+    .query(
+      `SELECT articles.*,
+      CAST(COUNT(comments.comment_id)AS INT) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON comments.article_id = articles.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC;`,
+      [id]
+    )
     .then(({ rows }) => {
       if (!rows.length) {
         return Promise.reject({
@@ -108,7 +117,7 @@ exports.updateArticleById = (id, increment) => {
 
 exports.insertCommentByArticle = (id, username, body) => {
   if (!username || !body) {
-    ("Reject, ", id, username, body)
+    "Reject, ", id, username, body;
     return Promise.reject({
       status: 400,
       msg: "Bad request",
@@ -119,8 +128,7 @@ exports.insertCommentByArticle = (id, username, body) => {
       "INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *",
       [id, username, body]
     )
-    .then(response => {
-      console.log(response)
-      return response.rows[0]; 
-    })
+    .then((response) => {
+      return response.rows[0];
+    });
 };
