@@ -63,20 +63,27 @@ exports.updateArticleById = (id, increment) => {
       return rows[0];
     });
 };
-exports.selectArticles = () => {
+exports.selectArticles = (topic) => {
+
+  let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic,
+    articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.comment_id) AS INT) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON comments.article_id = articles.article_id`;
+
+  if (topic) {
+    queryString += ` WHERE topic = $1`;
+  }
+
+  queryString += ` GROUP BY articles.article_id ORDER BY articles.created_at DESC`;
+
   return db
-    .query(
-      `SELECT articles.author,articles.title,articles.article_id,articles.topic,
-      articles.created_at,articles.votes,articles.article_img_url,CAST(COUNT(comments.comment_id)AS INT) AS comment_count
-  FROM articles
-  LEFT JOIN comments ON comments.article_id = articles.article_id
-  GROUP BY 
-      articles.article_id
-  ORDER BY articles.created_at DESC;`
-    )
+    .query(queryString, topic ? [topic] : [])
     .then(({ rows }) => {
+      if (rows.length === 0) {
+        return [];
+      }
       return rows;
-    });
+    })
 };
 
 exports.deleteCommentById = (id) => {
