@@ -71,10 +71,7 @@ exports.selectArticles = (topic) => {
     .query(queryString, topic ? [topic] : [])
     .then(({ rows }) => {
       if (rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "Article not found",
-        });
+        return [];
       }
       return rows;
     })
