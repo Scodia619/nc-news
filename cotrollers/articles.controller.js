@@ -7,12 +7,33 @@ const {
   selectUsers,
   insertCommentByArticle
 } = require("../models/articles.model");
+const { getTopics } = require("../models/topics.model");
 
 exports.getArticles = (req, res, next) => {
-  const topic = req.query.topic || undefined
-  selectArticles(topic).then((articles) => {
-    res.status(200).send({ articles });
-  }).catch(next);
+  const topicQuery = req.query.topic
+
+  getTopics()
+    .then((topics) => {
+      const topicExists = topics.some((topic) => topic.slug === topicQuery);
+
+      if((!isNaN(Number(topicQuery)))) {
+        return Promise.reject({
+          status: 400,
+          msg: "Bad request",
+        });
+      }else if (topicQuery && !topicExists) {
+        return Promise.reject({
+          status: 404,
+          msg: "Topic not found",
+        })
+      };
+
+      return selectArticles(topicQuery);
+    })
+    .then((articles) => {
+      res.status(200).send({ articles });
+    })
+    .catch(next);
 };
 
 exports.getArticleComments = (req, res, next) => {

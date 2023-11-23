@@ -55,12 +55,6 @@ exports.updateArticleById = (id, increment) => {
     });
 };
 exports.selectArticles = (topic) => {
-  if ((!isNaN(Number(topic)))) {
-    return Promise.reject({
-      status: 400,
-      msg: "Bad request",
-    });
-  }
 
   let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic,
     articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.comment_id) AS INT) AS comment_count
