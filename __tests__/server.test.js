@@ -322,76 +322,81 @@ describe("GET: /api/articles?topic=topic_name", () => {
       .then(({ body: { articles } }) => {
         expect(articles).toHaveLength(12);
         articles.forEach((article) => {
-          expect(
-            article).toMatchObject({
-              article_id: expect.any(Number),
-              title: expect.any(String),
-              topic: "mitch",
-              author: expect.any(String),
-              created_at: expect.any(String),
-              article_img_url: expect.any(String),
-            })
+          expect(article).toMatchObject({
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: "mitch",
+            author: expect.any(String),
+            created_at: expect.any(String),
+            article_img_url: expect.any(String),
+          });
         });
       });
   });
   test("400 - incorrect Data type for query", () => {
     return request(app)
-    .get("/api/articles?topic=1")
-    .expect(400)
-    .then(({body})=> {
-        expect(body.msg).toBe("Bad request")
-    })
+      .get("/api/articles?topic=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
   });
-  test("404 - topic doesnt exist", ()=>{
+  test("404 - topic doesnt exist", () => {
     return request(app)
-    .get("/api/articles?topic=banana")
-    .expect(404)
-    .then(({body})=> {
-        expect(body.msg).toBe("Topic not found")
-    })
-  })
-    test("400 - incorrect data type article_id", () => {
-        const comments = {username: 'butter_bridge',body: "This article is awesome"}
-        return request(app)
-        .post("/api/articles/banana/comments")
-        .send(comments)
-        .expect(400)
-        .then(({body}) => {
-            expect(body.msg).toBe("Bad request")
-        })
-    })
-    test("404 - no article given with id", () => {
-        const comments = {username: 'butter_bridge',body: "This article is awesome"}
-        return request(app)
-        .post("/api/articles/999/comments")
-        .send(comments)
-        .expect(404)
-        .then(({body}) => {
-            expect(body.msg).toBe("Article not found")
-        })
-    })
-})
-  
-describe("GET /api/articles/:article_id", ()=>{
-  test("200 - Gets the article and comment count", ()=>{
+      .get("/api/articles?topic=banana")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic not found");
+      });
+  });
+  test("400 - incorrect data type article_id", () => {
+    const comments = {
+      username: "butter_bridge",
+      body: "This article is awesome",
+    };
     return request(app)
-    .get("/api/articles/1")
-    .expect(200)
-    .then(({body:{ article}})=>{
-      expect(article).toMatchObject({
-        article_id: 1,
-        author: "butter_bridge",
-        title: "Living in the shadow of a great man",
-        body: "I find this existence challenging",
-        topic: "mitch",
-        created_at: "2020-07-09T20:11:00.000Z",
-        votes: 100,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: 11
+      .post("/api/articles/banana/comments")
+      .send(comments)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("404 - no article given with id", () => {
+    const comments = {
+      username: "butter_bridge",
+      body: "This article is awesome",
+    };
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(comments)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id", () => {
+  test("200 - Gets the article and comment count", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_id: 1,
+          author: "butter_bridge",
+          title: "Living in the shadow of a great man",
+          body: "I find this existence challenging",
+          topic: "mitch",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 100,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          comment_count: 11,
         });
-    })
-  })
+      });
+  });
   test("404: Resource not found based on a valid integer but no record", () => {
     return request(app)
       .get("/api/articles/999")
@@ -408,33 +413,65 @@ describe("GET /api/articles/:article_id", ()=>{
         expect(body.msg).toBe("Bad request");
       });
   });
-})
+});
 
-describe("GET /api/articles Sorting Queries", ()=>{
-  test("200 Gets based on sorting queries",()=>{
+describe("GET /api/articles Sorting Queries", () => {
+  test("200 Gets based on sorting queries", () => {
     return request(app)
-    .get("/api/articles?sortby=article_id&order=asc")
-    .expect(200)
-    .then(({body: {articles}})=>{
-      expect(articles).toHaveLength(13);
-      expect(articles).toBeSorted("article_id", { descending: false });
-    })
-  })
-  test("200 Given no sorting info defaults to set values", ()=>{
+      .get("/api/articles?sortby=article_id&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toHaveLength(13);
+        expect(articles).toBeSorted("article_id", { descending: false });
+      });
+  });
+  test("200 Given no sorting info defaults to set values", () => {
     return request(app)
-    .get("/api/articles")
-    .expect(200)
-    .then(({body: {articles}})=>{
-      expect(articles).toHaveLength(13);
-      expect(articles).toBeSorted("created_at", { descending: true });
-    })
-  })
-  test("404 No column name of sort query", ()=>{
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toHaveLength(13);
+        expect(articles).toBeSorted("created_at", { descending: true });
+      });
+  });
+  test("404 No column name of sort query", () => {
     return request(app)
-    .get("/api/articles?sortby=banana")
-    .expect(404)
+      .get("/api/articles?sortby=banana")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Column not found");
+      });
+  });
+});
+
+describe("GET /api/users/:username", () => {
+  test("200 - gets the correct user", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        expect(users).toMatchObject({
+          username: "butter_bridge",
+          name: "jonny",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        });
+      });
+  });
+  test("400 - Incorrect data type for username", ()=>{
+    return request(app)
+    .get("/api/users/1")
+    .expect(400)
     .then(({body})=> {
-      expect(body.msg).toBe("Column not found")
+      expect(body.msg).toBe("Bad request")
     })
   })
-})
+  test("404 - No user found", ()=> {
+    return request(app)
+    .get("/api/users/scodia619")
+    .expect(404)
+    .then(({body})=>{
+      expect(body.msg).toBe("No users found")
+    })
+  })
+});
