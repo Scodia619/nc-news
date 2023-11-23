@@ -129,7 +129,6 @@ exports.insertCommentByArticle = (id, username, body) => {
       [id, username, body]
     )
     .then((response) => {
-      console.log(response);
       return response.rows[0];
     });
 };
