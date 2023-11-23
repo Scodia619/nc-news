@@ -90,6 +90,8 @@ exports.postCommentByArticle = (req, res, next) => {
 exports.postNewArticle = (req, res, next) => {
   const {author, title, body, topic, article_img_url} = req.body
   insertNewArticle(author, title, body, topic, article_img_url).then((article)=>{
+    return selectArticleById(article.article_id)
+  }).then((article)=>{
     res.status(201).send({article})
   }).catch(next)
 }

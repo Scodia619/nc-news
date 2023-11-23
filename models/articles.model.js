@@ -131,7 +131,6 @@ exports.insertNewArticle = (author, title, body, topic, article_img_url) => {
       msg: "Bad request"
     })
   }
-  console.log("Hello")
   let queryString;
   if(!article_img_url){
     queryString = 'INSERT INTO articles (author, title, body, topic) VALUES ($1, $2, $3, $4) RETURNING *'
