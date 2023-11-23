@@ -458,20 +458,80 @@ describe("GET /api/users/:username", () => {
         });
       });
   });
-  test("400 - Incorrect data type for username", ()=>{
+  test("400 - Incorrect data type for username", () => {
     return request(app)
-    .get("/api/users/1")
-    .expect(400)
-    .then(({body})=> {
-      expect(body.msg).toBe("Bad request")
-    })
-  })
-  test("404 - No user found", ()=> {
+      .get("/api/users/1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("404 - No user found", () => {
     return request(app)
-    .get("/api/users/scodia619")
-    .expect(404)
-    .then(({body})=>{
-      expect(body.msg).toBe("No users found")
-    })
-  })
+      .get("/api/users/scodia619")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+});
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200 - Updates and returns correct increased votes", () => {
+    const incVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(incVotes)
+      .expect(200)
+      .then(({ body: {comment} }) => {
+        expect(comment).toMatchObject({
+          comment_id: 1,
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 17,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("400 - No data given", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400 - Incorrect Data for id", () => {
+    const incVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/Banana")
+      .send(incVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("400 - Incorrect Data", () => {
+    const incVotes = { inc_votes: "one" };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(incVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+
+  test("404 - No article_id", () => {
+    const incVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/999")
+      .send(incVotes)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment not found");
+      });
+  });
 });
