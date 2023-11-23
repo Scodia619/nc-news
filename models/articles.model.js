@@ -1,4 +1,5 @@
 const db = require("../db/connection.js");
+const {format} = require('pg-format')
 
 exports.selectArticleComments = (id) => {
   return db
@@ -63,27 +64,41 @@ exports.updateArticleById = (id, increment) => {
       return rows[0];
     });
 };
-exports.selectArticles = (topic) => {
-
-  let queryString = `SELECT articles.author, articles.title, articles.article_id, articles.topic,
-    articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.comment_id) AS INT) AS comment_count
+exports.selectArticles = (topic, sort, order) => {
+  const queryParams = [];
+  let queryString = `
+    SELECT articles.author, articles.title, articles.article_id, articles.topic,
+    articles.created_at, articles.votes, articles.article_img_url, 
+    CAST(COUNT(comments.comment_id) AS INT) AS comment_count
     FROM articles
-    LEFT JOIN comments ON comments.article_id = articles.article_id`;
+    LEFT JOIN comments ON comments.article_id = articles.article_id
+  `;
 
   if (topic) {
     queryString += ` WHERE topic = $1`;
+    queryParams.push(topic);
   }
 
-  queryString += ` GROUP BY articles.article_id ORDER BY articles.created_at DESC`;
+  if (sort && order) {
+    const allowedSortColumns = ['created_at', 'votes', 'article_id', 'title', 'body', 'author']; // Define allowed sort columns
+    const allowedOrders = ['DESC', 'ASC']
+    if (!allowedSortColumns.includes(sort) || !allowedOrders.includes(order)) {
+      return Promise.reject({
+        status: 404,
+        msg: "Column not found",
+      });
+    }
+    queryString += ` GROUP BY articles.article_id ORDER BY ${sort} ${order}`;
+  }
 
   return db
-    .query(queryString, topic ? [topic] : [])
+    .query(queryString, queryParams)
     .then(({ rows }) => {
-      if (rows.length === 0) {
-        return [];
-      }
       return rows;
     })
+    .catch((error) => {
+      throw new Error("Error executing the query: " + error);
+    });
 };
 
 exports.deleteCommentById = (id) => {

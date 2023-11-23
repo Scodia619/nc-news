@@ -11,6 +11,8 @@ const { getTopics } = require("../models/topics.model");
 
 exports.getArticles = (req, res, next) => {
   const topicQuery = req.query.topic
+  const sortby = req.query.sortby || 'created_at'
+  const order = req.query.order || 'DESC'
 
   getTopics()
     .then((topics) => {
@@ -28,7 +30,7 @@ exports.getArticles = (req, res, next) => {
         })
       };
 
-      return selectArticles(topicQuery);
+      return selectArticles(topicQuery, sortby, order.toUpperCase());
     })
     .then((articles) => {
       res.status(200).send({ articles });

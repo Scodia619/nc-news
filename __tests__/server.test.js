@@ -409,3 +409,32 @@ describe("GET /api/articles/:article_id", ()=>{
       });
   });
 })
+
+describe("GET /api/articles Sorting Queries", ()=>{
+  test("200 Gets based on sorting queries",()=>{
+    return request(app)
+    .get("/api/articles?sortby=article_id&order=asc")
+    .expect(200)
+    .then(({body: {articles}})=>{
+      expect(articles).toHaveLength(13);
+      expect(articles).toBeSorted("article_id", { descending: false });
+    })
+  })
+  test("200 Given no sorting info defaults to set values", ()=>{
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({body: {articles}})=>{
+      expect(articles).toHaveLength(13);
+      expect(articles).toBeSorted("created_at", { descending: true });
+    })
+  })
+  test("404 No column name of sort query", ()=>{
+    return request(app)
+    .get("/api/articles?sortby=banana")
+    .expect(404)
+    .then(({body})=> {
+      expect(body.msg).toBe("Column not found")
+    })
+  })
+})
