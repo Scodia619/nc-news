@@ -349,5 +349,63 @@ describe("GET: /api/articles?topic=topic_name", () => {
     .then(({body})=> {
         expect(body.msg).toBe("Topic not found")
     })
+  })
+    test("400 - incorrect data type article_id", () => {
+        const comments = {username: 'butter_bridge',body: "This article is awesome"}
+        return request(app)
+        .post("/api/articles/banana/comments")
+        .send(comments)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toBe("Bad request")
+        })
+    })
+    test("404 - no article given with id", () => {
+        const comments = {username: 'butter_bridge',body: "This article is awesome"}
+        return request(app)
+        .post("/api/articles/999/comments")
+        .send(comments)
+        .expect(404)
+        .then(({body}) => {
+            expect(body.msg).toBe("Article not found")
+        })
+    })
+})
+  
+describe("GET /api/articles/:article_id", ()=>{
+  test("200 - Gets the article and comment count", ()=>{
+    return request(app)
+    .get("/api/articles/1")
+    .expect(200)
+    .then(({body:{ article}})=>{
+      expect(article).toMatchObject({
+        article_id: 1,
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+        body: "I find this existence challenging",
+        topic: "mitch",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 100,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: 11
+        });
+    })
+  })
+  test("404: Resource not found based on a valid integer but no record", () => {
+    return request(app)
+      .get("/api/articles/999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
   });
-});
+  test("400: Invalid data type", () => {
+    return request(app)
+      .get("/api/articles/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+})
