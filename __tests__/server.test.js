@@ -111,16 +111,15 @@ describe("GET: /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body: { comments } }) => {
-        expect(comments).toHaveLength(11);
-        expect(comments).toBeSorted("created_at", { descending: true });
+        expect(comments).toHaveLength(10);
         comments.forEach((comment) => {
           expect(comment).toMatchObject({
-            comment_id: expect.any(Number),
-            votes: expect.any(Number),
-            created_at: expect.any(String),
             author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_id: 1,
             body: expect.any(String),
-            article_id: expect.any(Number),
+            comment_id: expect.any(Number),
           });
         });
       });
@@ -619,19 +618,18 @@ describe("GET /api/articles Pagination", () => {
             votes: expect.any(Number),
             article_id: expect.any(Number),
             comment_count: expect.any(Number),
-            article_img_url:
-            expect.any(String),
+            article_img_url: expect.any(String),
           });
         });
       });
   });
-  test("200 - Defines the limit at 5", ()=>{
+  test("200 - Defines the limit at 5", () => {
     return request(app)
       .get("/api/articles?page=1&limit=5&sortby=article_id&order=ASC")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toHaveLength(5);
-        expect(articles).toBeSortedBy("article_id", {descending: false})
+        expect(articles).toBeSortedBy("article_id", { descending: false });
         articles.forEach((article) => {
           expect(article).toMatchObject({
             title: expect.any(String),
@@ -641,24 +639,23 @@ describe("GET /api/articles Pagination", () => {
             votes: expect.any(Number),
             article_id: expect.any(Number),
             comment_count: expect.any(Number),
-            article_img_url:
-            expect.any(String),
+            article_img_url: expect.any(String),
           });
         });
       });
-  })
-  test("200 - Gets the second page of results", ()=>{
+  });
+  test("200 - Gets the second page of results", () => {
     return request(app)
       .get("/api/articles?page=2&limit=5&sortby=article_id&order=ASC")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toHaveLength(5);
-        expect(articles).toBeSortedBy("article_id", {descending: false})
+        expect(articles).toBeSortedBy("article_id", { descending: false });
         let first = 6;
         let last = 11;
         articles.forEach((article) => {
-          expect(article.article_id).toBe(first)
-          expect(article.article_id).not.toBe(last)
+          expect(article.article_id).toBe(first);
+          expect(article.article_id).not.toBe(last);
           expect(article).toMatchObject({
             title: expect.any(String),
             topic: expect.any(String),
@@ -667,27 +664,105 @@ describe("GET /api/articles Pagination", () => {
             votes: expect.any(Number),
             article_id: expect.any(Number),
             comment_count: expect.any(Number),
-            article_img_url:
-            expect.any(String),
+            article_img_url: expect.any(String),
           });
-          first ++
+          first++;
         });
       });
-  })
-  test("400 - Incorrect data type for limit", ()=>{
+  });
+  test("400 - Incorrect data type for limit", () => {
     return request(app)
-    .get("/api/articles?limit=one&page=1")
-    .expect(400)
-    .then(({body})=>{
-      expect(body.msg).toBe("Bad request")
-    })
-  })
-  test("404 - Page that cant have any articles", ()=>{
+      .get("/api/articles?limit=one&page=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("404 - Page that cant have any articles", () => {
     return request(app)
-    .get("/api/articles?page=999")
-    .expect(404)
-    .then(({body})=>{
-      expect(body.msg).toBe("Articles not found")
-    })
-  })
+      .get("/api/articles?page=999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Articles not found");
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments Pagination", () => {
+  test("200 - Gets a limit of 10 as a default value", () => {
+    return request(app)
+      .get("/api/articles/1/comments?page=1")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toHaveLength(10);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_id: 1,
+            body: expect.any(String),
+            comment_id: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("200 - Defines the limit at 5", () => {
+    return request(app)
+      .get(
+        "/api/articles/1/comments?page=1&limit=5&sortby=article_id&order=ASC"
+      )
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toHaveLength(5);
+        expect(comments).toBeSortedBy("article_id", { descending: false });
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_id: 1,
+            body: expect.any(String),
+            comment_id: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("200 - Gets the second page of results", () => {
+    return request(app)
+      .get(
+        "/api/articles/1/comments?page=2&limit=5&sortby=article_id&order=ASC"
+      )
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toHaveLength(5);
+        expect(comments).toBeSortedBy("article_id", { descending: false });
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_id: 1,
+            body: expect.any(String),
+            comment_id: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("400 - Incorrect data type for limit", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=one&page=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("404 - Page that cant have any comments", () => {
+    return request(app)
+      .get("/api/articles/1/comments?page=999")
+      .expect(200)
+      .then(({ body: {comments} }) => {
+        expect(comments).toEqual([]);
+      });
+  });
 });

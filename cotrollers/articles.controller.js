@@ -20,14 +20,12 @@ exports.getArticles = (req, res, next) => {
     .then((topics) => {
       if (topicQuery) {
         const topicExists = topics.some((topic) => topic.slug === topicQuery);
-        console.log(topicQuery, topicExists)
         if (!topicExists && !isNaN(Number(topicQuery))) {
           return Promise.reject({
             status: 400,
             msg: "Bad request",
           });
         }else if(!topicExists){
-          console.log("No topic")
           return Promise.reject({
             status: 404,
             msg: "Topic not found",
@@ -45,15 +43,6 @@ exports.getArticles = (req, res, next) => {
     })
     .then(({articles, total_count}) => {
       res.status(200).send({ articles, total_count });
-    })
-    .catch(next);
-};
-
-exports.getArticleComments = (req, res, next) => {
-  const { article_id } = req.params;
-  selectArticleComments(article_id)
-    .then((comments) => {
-      res.status(200).send({ comments });
     })
     .catch(next);
 };
@@ -85,7 +74,9 @@ exports.patchArticleById = (req, res, next) => {
 
 exports.getArticleComments = (req, res, next) => {
   const { article_id } = req.params;
-  selectArticleComments(article_id)
+  const limit = req.query.limit || 10
+  const page = req.query.page || 1
+  selectArticleComments(article_id, parseInt(limit), parseInt(page))
     .then((comments) => {
       res.status(200).send({ comments });
     })

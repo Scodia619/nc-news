@@ -1,10 +1,20 @@
 const db = require("../db/connection.js");
 const {format} = require('pg-format')
 
-exports.selectArticleComments = (id) => {
+exports.selectArticleComments = (id, limit, page) => {
+  const limitVals = [5, 10, 25]
+  if (!limitVals.includes(limit)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request",
+    });
+  }
+
+  const offset = limit * page - limit
+
   return db
     .query(
-      `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
+      `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`,
       [id]
     )
     .then(({ rows }) => {
