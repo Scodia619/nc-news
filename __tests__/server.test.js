@@ -88,7 +88,7 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
-        expect(articles).toHaveLength(13);
+        expect(articles).toHaveLength(10);
         articles.forEach((article) => {
           expect(article).toMatchObject({
             article_id: expect.any(Number),
@@ -320,7 +320,7 @@ describe("GET: /api/articles?topic=topic_name", () => {
       .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toHaveLength(12);
+        expect(articles).toHaveLength(10);
         articles.forEach((article) => {
           expect(article).toMatchObject({
             article_id: expect.any(Number),
@@ -421,7 +421,7 @@ describe("GET /api/articles Sorting Queries", () => {
       .get("/api/articles?sortby=article_id&order=asc")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toHaveLength(13);
+        expect(articles).toHaveLength(10);
         expect(articles).toBeSorted("article_id", { descending: false });
       });
   });
@@ -430,16 +430,16 @@ describe("GET /api/articles Sorting Queries", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toHaveLength(13);
+        expect(articles).toHaveLength(10);
         expect(articles).toBeSorted("created_at", { descending: true });
       });
   });
   test("404 No column name of sort query", () => {
     return request(app)
       .get("/api/articles?sortby=banana")
-      .expect(404)
+      .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Column not found");
+        expect(body.msg).toBe("Invalid sort column or order");
       });
   });
 });
@@ -603,7 +603,7 @@ describe("POST /api/articles", () => {
   });
 });
 
-describe.only("GET /api/articles Pagination", () => {
+describe("GET /api/articles Pagination", () => {
   test("200 - Gets a limit of 10 as a default value", () => {
     return request(app)
       .get("/api/articles?page=1")

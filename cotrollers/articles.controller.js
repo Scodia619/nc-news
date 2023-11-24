@@ -19,20 +19,20 @@ exports.getArticles = (req, res, next) => {
   getTopics()
     .then((topics) => {
       if (topicQuery) {
-        const topicExists = topics.find((topic) => topic.slug === topicQuery);
-        if (!topicExists) {
+        const topicExists = topics.some((topic) => topic.slug === topicQuery);
+        console.log(topicQuery, topicExists)
+        if (!topicExists && !isNaN(Number(topicQuery))) {
+          return Promise.reject({
+            status: 400,
+            msg: "Bad request",
+          });
+        }else if(!topicExists){
+          console.log("No topic")
           return Promise.reject({
             status: 404,
             msg: "Topic not found",
           });
         }
-      }
-
-      if (!isNaN(Number(topicQuery))) {
-        return Promise.reject({
-          status: 400,
-          msg: "Bad request",
-        });
       }
 
       return selectArticles(
