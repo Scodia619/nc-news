@@ -539,12 +539,12 @@ describe("PATCH /api/comments/:comment_id", () => {
 describe("POST /api/articles", () => {
   test("201 inserts article and responds with new article", () => {
     const newArticle = {
-      author: 'butter_bridge',
-      title: 'Football Mania has hit Anfield',
-      body: 'Fans flocked to the stadium today to support Liverpool vs Everton',
-      topic: 'football',
+      author: "butter_bridge",
+      title: "Football Mania has hit Anfield",
+      body: "Fans flocked to the stadium today to support Liverpool vs Everton",
+      topic: "football",
       article_img_url:
-        'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
     };
     return request(app)
       .post("/api/articles")
@@ -559,22 +559,22 @@ describe("POST /api/articles", () => {
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           article_id: 14,
-          comment_count: 0
+          comment_count: 0,
         });
       });
   });
-  test("201 - Defaults the image and create new article", ()=>{
+  test("201 - Defaults the image and create new article", () => {
     const newArticle = {
-      author: 'butter_bridge',
-      title: 'Football Mania has hit Anfield',
-      body: 'Fans flocked to the stadium today to support Liverpool vs Everton',
-      topic: 'football',
-      };
-      return request(app)
+      author: "butter_bridge",
+      title: "Football Mania has hit Anfield",
+      body: "Fans flocked to the stadium today to support Liverpool vs Everton",
+      topic: "football",
+    };
+    return request(app)
       .post("/api/articles")
       .send(newArticle)
       .expect(201)
-      .then(({body: {article}})=>{
+      .then(({ body: { article } }) => {
         expect(article).toMatchObject({
           author: "butter_bridge",
           title: "Football Mania has hit Anfield",
@@ -583,22 +583,111 @@ describe("POST /api/articles", () => {
           article_img_url:
             "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
           article_id: 14,
-          comment_count: 0
-        })
-      })
-  })
-  test("400 - Missing Data", ()=>{
+          comment_count: 0,
+        });
+      });
+  });
+  test("400 - Missing Data", () => {
     const newArticle = {
-      title: 'Football Mania has hit Anfield',
-      body: 'Fans flocked to the stadium today to support Liverpool vs Everton',
-      topic: 'football',
-      };
-      return request(app)
+      title: "Football Mania has hit Anfield",
+      body: "Fans flocked to the stadium today to support Liverpool vs Everton",
+      topic: "football",
+    };
+    return request(app)
       .post("/api/articles")
       .send(newArticle)
       .expect(400)
-      .then(({body})=>{
-        expect(body.msg).toBe("Bad request")
-      })
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe.only("GET /api/articles Pagination", () => {
+  test("200 - Gets a limit of 10 as a default value", () => {
+    return request(app)
+      .get("/api/articles?page=1")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toHaveLength(10);
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_id: expect.any(Number),
+            comment_count: expect.any(Number),
+            article_img_url:
+            expect.any(String),
+          });
+        });
+      });
+  });
+  test("200 - Defines the limit at 5", ()=>{
+    return request(app)
+      .get("/api/articles?page=1&limit=5&sortby=article_id&order=ASC")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toHaveLength(5);
+        expect(articles).toBeSortedBy("article_id", {descending: false})
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_id: expect.any(Number),
+            comment_count: expect.any(Number),
+            article_img_url:
+            expect.any(String),
+          });
+        });
+      });
+  })
+  test("200 - Gets the second page of results", ()=>{
+    return request(app)
+      .get("/api/articles?page=2&limit=5&sortby=article_id&order=ASC")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toHaveLength(5);
+        expect(articles).toBeSortedBy("article_id", {descending: false})
+        let first = 6;
+        let last = 11;
+        articles.forEach((article) => {
+          expect(article.article_id).toBe(first)
+          expect(article.article_id).not.toBe(last)
+          expect(article).toMatchObject({
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_id: expect.any(Number),
+            comment_count: expect.any(Number),
+            article_img_url:
+            expect.any(String),
+          });
+          first ++
+        });
+      });
+  })
+  test("400 - Incorrect data type for limit", ()=>{
+    return request(app)
+    .get("/api/articles?limit=one&page=1")
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe("Bad request")
+    })
+  })
+  test("404 - Page that cant have any articles", ()=>{
+    return request(app)
+    .get("/api/articles?page=999")
+    .expect(404)
+    .then(({body})=>{
+      expect(body.msg).toBe("Articles not found")
+    })
   })
 });

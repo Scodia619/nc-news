@@ -64,10 +64,12 @@ exports.updateArticleById = (id, increment) => {
       return rows[0];
     });
 };
-exports.selectArticles = (topic, sort, order) => {
+exports.selectArticles = (topic, sort, order, limit, page) => {
   const queryParams = [];
   let queryString = `
-    SELECT articles.author, articles.title, articles.article_id, articles.topic,
+    SELECT (SELECT COUNT(*)::INT FROM articles ${
+      topic ? ` WHERE articles.topic = $1 ` : ``
+    }) as total_count, articles.author, articles.title, articles.article_id, articles.topic,
     articles.created_at, articles.votes, articles.article_img_url, 
     CAST(COUNT(comments.comment_id) AS INT) AS comment_count
     FROM articles
@@ -80,26 +82,50 @@ exports.selectArticles = (topic, sort, order) => {
   }
 
   if (sort && order) {
-    const allowedSortColumns = ['created_at', 'votes', 'article_id', 'title', 'body', 'author']; // Define allowed sort columns
-    const allowedOrders = ['DESC', 'ASC']
+    const allowedSortColumns = ['created_at', 'votes', 'article_id', 'title', 'author'];
+    const allowedOrders = ['DESC', 'ASC'];
+
     if (!allowedSortColumns.includes(sort) || !allowedOrders.includes(order)) {
       return Promise.reject({
-        status: 404,
-        msg: "Column not found",
+        status: 400,
+        msg: "Invalid sort column or order",
       });
     }
-    queryString += ` GROUP BY articles.article_id ORDER BY ${sort} ${order}`;
   }
+
+    if (limit) {
+      const allowedLimits = [5, 10, 25];
+      if (!allowedLimits.includes(parseInt(limit))) {
+        return Promise.reject({
+          status: 400,
+          msg: "Bad request",
+        });
+      }
+    }
+
+    const offset = limit * page - limit;
+
+    queryString += ` 
+    GROUP BY articles.article_id 
+    ORDER BY articles.${sort} ${order} 
+    LIMIT ${limit} 
+    OFFSET ${offset}`;
 
   return db
     .query(queryString, queryParams)
     .then(({ rows }) => {
-      return rows;
+      if (!rows.length) {
+        return Promise.reject({
+          status: 404,
+          msg: "Articles not found",
+        });
+      }else{
+        return {articles: rows, total_count:rows[0].total_count};
+      }
     })
-    .catch((error) => {
-      throw new Error("Error executing the query: " + error);
-    });
 };
+
+
 
 exports.selectUsers = () => {
   return db.query(`SELECT * FROM users`).then(({ rows }) => {
