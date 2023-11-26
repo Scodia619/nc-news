@@ -6,6 +6,7 @@ const {
   selectUsers,
   insertCommentByArticle,
   insertNewArticle,
+  removeArticleById,
 } = require("../models/articles.model");
 const { getTopics } = require("../models/topics.model");
 
@@ -105,5 +106,15 @@ exports.postNewArticle = (req, res, next) => {
     .then((article) => {
       res.status(201).send({ article });
     })
+    .catch(next);
+};
+
+exports.deleteArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  selectArticleById(article_id)
+    .then(() => {
+      return removeArticleById(article_id);
+    })
+    .then(() => res.sendStatus(204))
     .catch(next);
 };

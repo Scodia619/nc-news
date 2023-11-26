@@ -803,3 +803,41 @@ describe("POST /api/topics", ()=>{
     })
   })
 })
+
+describe("DELETE", () => {
+  test("DELETE:204 responds 204 if deleted", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toMatchObject({});
+      });
+  });
+  test("DELETE:204 should delete relatvant comments ", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .expect(204)
+      .then(() => {
+        return request(app).get("/api/articles/1/comments").expect(404);
+      })
+      .then(({ body}) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("DELETE:400 bad request if id not a number", () => {
+    return request(app)
+      .delete("/api/articles/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("DELETE:404 article does not exist", () => {
+    return request(app)
+      .delete("/api/articles/999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+});

@@ -9,7 +9,6 @@ exports.getTopics = (req,res,next) => {
 exports.postNewTopic = (req, res, next) => {
     const {slug, description} = req.body
     insertNewTopic(slug, description).then(topic => {
-        console.log(topic, "Controller")
         res.status(201).send(topic)
     }).catch(next)
 }
