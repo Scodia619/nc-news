@@ -2,11 +2,13 @@
   "GET /api": {
     "description": "serves up a json representation of all the available endpoints of the api",
     "queries": [],
-    "exampleResponse": {"GET /api": {
-      "description": "serves up a json representation of all the available endpoints of the api",
-      "queries": [],
-      "exampleResponse": {}
-    }}
+    "exampleResponse": {
+      "GET /api": {
+        "description": "serves up a json representation of all the available endpoints of the api",
+        "queries": [],
+        "exampleResponse": {}
+      }
+    }
   },
   "GET /api/topics": {
     "description": "serves an array of all topics",
@@ -30,6 +32,83 @@
           "comment_count": 6
         }
       ]
+    }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "Finds and retrieve an article with the specific id entered",
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Seafood substitutions are increasing",
+        "topic": "cooking",
+        "author": "weegembump",
+        "body": "Text from the article..",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 0,
+        "comment_count": 6
+      }
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "Gets all comments associated with an article id provided",
+    "queries": [],
+    "exampleResponse": [
+      {
+        "comment_id": 1,
+        "article_id": 1,
+        "author": "weegembump",
+        "body": "Text from the article..",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 0
+      }
+    ]
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Post a new comment for the article id provided",
+    "queries": [],
+    "exampleRequest": {
+      "username": "beetleJuice",
+      "body": "Say my name three times"
+    },
+    "exampleResponse": {
+      "comment": {
+        "body": "This article is awesome",
+        "votes": 0,
+        "author": "butter_bridge",
+        "article_id": 1,
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "comment_id": 19
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "Increments the votes of a specific article by number given",
+    "queries": [],
+    "exampleRequest": { "inc_votes": 100 },
+    "exampleResponse": {
+      "article": [
+        {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "body": "I find this existence challenging",
+          "votes": 110,
+          "topic": "mitch",
+          "author": "butter_bridge",
+          "created_at": "2018-11-15T12:21:54.171Z"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes the associated comment given by id",
+    "queries": []
+  },
+  "GET /api/users": {
+    "description": "Gets all users on the platform",
+    "queries": [],
+    "exampleResponse": {
+      "users": [ { "username": "butter_bridge" }, { "username": "icellusedkars" } ]
     }
   }
 }
