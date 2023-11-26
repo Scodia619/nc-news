@@ -766,3 +766,40 @@ describe("GET /api/articles/:article_id/comments Pagination", () => {
       });
   });
 });
+
+describe("POST /api/topics", ()=>{
+  test("201 - Posts new topic and returns that topic object",()=>{
+    const newTopic = {slug: "Rugby League", description: "A topic to discuss the great rugby league"}
+    return request(app)
+    .post("/api/topics")
+    .send(newTopic)
+    .expect(201)
+    .then(({body: topic})=>{
+      expect(topic).toMatchObject({
+        slug: "Rugby League",
+        description: "A topic to discuss the great rugby league"
+      })
+    })
+  })
+  test("400 - Missing Data", ()=>{
+    const newTopic = {slug: "Rugby Union"}
+    return request(app)
+    .post("/api/topics")
+    .send(newTopic)
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe("Bad request")
+    })
+  })
+
+  test("400 - Unique Violation", ()=>{
+    const newTopic  = {description: 'The man, the Mitch, the legend',slug: 'mitch'}
+    return request(app)
+    .post("/api/topics")
+    .send(newTopic)
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe("Slug already exists")
+    })
+  })
+})
