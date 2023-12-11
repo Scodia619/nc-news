@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require('cors')
 
 const { getTopics } = require("./cotrollers/topics.controller");
 const { getEndpoints } = require("./cotrollers/baseCall.controller");
@@ -10,6 +11,7 @@ const apiRouter = require("./routes/api-router");
 const app = express();
 
 app.use(express.json())
+app.use(cors)
 
 app.use("/api", apiRouter)
 
