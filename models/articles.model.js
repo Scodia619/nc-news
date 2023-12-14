@@ -101,6 +101,7 @@ exports.selectArticles = (topic, sort, order, limit, page) => {
         msg: "Invalid sort column or order",
       });
     }
+
   }
 
     if (limit) {
@@ -116,8 +117,13 @@ exports.selectArticles = (topic, sort, order, limit, page) => {
     const offset = limit * page - limit;
 
     queryString += ` 
-    GROUP BY articles.article_id 
-    ORDER BY articles.${sort} ${order} 
+    GROUP BY articles.article_id  `
+    if (sort === 'comment_count') {
+      queryString += `ORDER BY COUNT(comments.comment_id) ${order}`;
+    } else {
+      queryString += `ORDER BY articles.${sort} ${order}`;
+    }
+    queryString += `
     LIMIT ${limit} 
     OFFSET ${offset}`;
 
