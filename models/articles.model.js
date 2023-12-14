@@ -92,8 +92,8 @@ exports.selectArticles = (topic, sort, order, limit, page) => {
   }
 
   if (sort && order) {
-    const allowedSortColumns = ['created_at', 'votes', 'article_id', 'title', 'author'];
-    const allowedOrders = ['DESC', 'ASC'];
+    const allowedSortColumns = ['created_at', 'votes', 'article_id', 'title', 'author', "comment_count"];
+    const allowedOrders = ['DESC', 'ASC', "asc", "desc"];
 
     if (!allowedSortColumns.includes(sort) || !allowedOrders.includes(order)) {
       return Promise.reject({
